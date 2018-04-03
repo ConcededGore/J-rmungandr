@@ -1,8 +1,9 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Networking;
 
-public class BulletCorrection : MonoBehaviour {
+public class BulletCorrection : NetworkBehaviour {
 	private Rigidbody2D rb;
 	// Use this for initialization
 	void Start () {
@@ -13,7 +14,7 @@ public class BulletCorrection : MonoBehaviour {
 	void Update () {
 		transform.right = rb.velocity.normalized;
 		Vector3 newScale = transform.localScale;
-		newScale.x = rb.velocity.magnitude/5.0f+1;
+		newScale.x = rb.velocity.magnitude/20.0f+1;
 		transform.localScale = newScale;
 	}
 }
