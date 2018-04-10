@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.Networking;
 
 public class PlayerController : NetworkBehaviour {
-	public GameObject SpawnPos;
+	public BulletSpawner bulletSpawner;
 
 	public string className;
 
@@ -16,6 +16,8 @@ public class PlayerController : NetworkBehaviour {
 	public int jumps;
 	public int health;
 
+	public bool eatBullets = true;
+
 	private int curentJumps = 0;
 
 	private float horizontal;
@@ -23,7 +25,6 @@ public class PlayerController : NetworkBehaviour {
 
 	private Rigidbody2D rb;
 	private BoxCollider2D bc;
-	private JumpDetector jumpDetector;
 	private Vector2 jumpDirection;
 
 	private bool justJumped = false;
@@ -39,7 +40,6 @@ public class PlayerController : NetworkBehaviour {
 	void Start () {
 		rb = GetComponent<Rigidbody2D> ();
 		bc = GetComponent<BoxCollider2D> ();
-		jumpDetector = GetComponent<JumpDetector> ();
 		maxHorizontal = (Vector2.right * 750 * Time.deltaTime);
 		jumpForce = 25f;
 		speed = 2.5f;
@@ -102,7 +102,6 @@ public class PlayerController : NetworkBehaviour {
 			jumpDirection.Normalize ();
 		}
 		if (Input.GetKeyDown("space") && ((curentJumps < jumps) || anchored)) {
-			print (jumpDirection*jumpForce);
 			justJumped = true;
 			rb.AddForce (jumpDirection * jumpForce, ForceMode2D.Impulse);
 			curentJumps++;
@@ -110,7 +109,7 @@ public class PlayerController : NetworkBehaviour {
 	}
 
 	void OnCollisionEnter2D(Collision2D col) {
-		if (col.gameObject.tag == "Bullet") {
+		if (col.gameObject.tag == "Bullet" && eatBullets) {
 			Destroy (col.gameObject);
 		}
 	}

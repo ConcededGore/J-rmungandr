@@ -226,6 +226,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fc6b0f3004b02424093651b9d779fea4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  bulletSpawner: {fileID: 114413353015266350}
   className: 
   speed: 1
   jumpForce: 0
@@ -233,6 +234,7 @@ MonoBehaviour:
   fireRate: 0
   jumps: 1
   health: 0
+  eatBullets: 1
 --- !u!114 &114413353015266350
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -244,15 +246,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 64422a288aa321646a0031be38000f32, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  bullet: {fileID: 1056153104907806, guid: e1beeceb3d969ab4fba2aa62b983baeb, type: 2}
+  bullet: {fileID: 1430988435412250, guid: 709ff98a3d257924f9e37e83f70c2900, type: 2}
   SpawnPos: {fileID: 1385283916011180}
-  firerate: 1
+  firerate: 0.25
   reloadTime: 1
-  bulletLifetime: 1
+  bulletLifetime: 5
   bulletVelocity: 0.5
-  fireFeild: 10
+  fireField: 10
   ammoCount: 0
-  autoFire: 0
+  autoFire: 1
 --- !u!114 &114622540711144946
 MonoBehaviour:
   m_ObjectHideFlags: 1
