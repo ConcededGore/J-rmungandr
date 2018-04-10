@@ -23,33 +23,41 @@ public abstract class WeaponBase : NetworkBehaviour {
 
 	private float timer = 0;
 
-	private float lastFired;
+	public float lastFired;
 
 	// Use this for initialization
 	void Start () {
 		lastFired = -firerate;
 	}
-	
-	// Update is called once per frame
-	void Update () {
-		
-		if (!isLocalPlayer) {
-			return;
-		}
-		// runs on client	
-		if (autoFire) {
-			if (Input.GetMouseButton (0)) {
-				//CmdFireAuto ();
-			} else {
-				lastFired = lastFired + firerate < Time.time ? Time.time - firerate : lastFired;
-			}
-		}
 
-		if (Input.GetMouseButtonDown (0)) {
-			//CmdFire ();
-		} else {
-			lastFired = lastFired + firerate*1.05f < Time.time ? Time.time - firerate*1.05f : lastFired;
+	public virtual void AutoFire() {
+		while (Time.time > lastFired + firerate) {
+			lastFired += firerate;
+			GameObject newBullet = Instantiate<GameObject> (bullet, SpawnPos.transform.position, SpawnPos.transform.rotation);
+			Rigidbody2D rb = newBullet.GetComponent<Rigidbody2D> ();
+			rb.velocity = GetComponent<Rigidbody2D> ().velocity;
+			Vector2 forceOnBullet = SpawnPos.transform.right;
+			float theta = Random.Range (-fireField / 2f, fireField / 2f) * Mathf.Deg2Rad;
+			Vector2 rotated = new Vector2 (Mathf.Cos (theta) * forceOnBullet.x - Mathf.Sin (theta) * forceOnBullet.y, Mathf.Sin (theta) * forceOnBullet.x + Mathf.Cos (theta) * forceOnBullet.y);
+			rb.AddForce (rotated * bulletVelocity, ForceMode2D.Impulse);
+			NetworkServer.Spawn (newBullet);
+			Destroy (newBullet, bulletLifetime);
 		}
+	}
 
+	public virtual void SingleFire() {
+		if (lastFired + firerate < Time.time) {
+			print ("test");
+			lastFired = Time.time;
+			GameObject newBullet = Instantiate<GameObject> (bullet, SpawnPos.transform.position, SpawnPos.transform.rotation);
+			Rigidbody2D rb = newBullet.GetComponent<Rigidbody2D> ();
+			rb.velocity = GetComponent<Rigidbody2D> ().velocity;
+			Vector2 forceOnBullet = SpawnPos.transform.right;
+			float theta = Random.Range (-fireField / 2, fireField / 2)*Mathf.Deg2Rad;
+			Vector2 rotated = new Vector2 (Mathf.Cos (theta) * forceOnBullet.x - Mathf.Sin (theta) * forceOnBullet.y, Mathf.Sin (theta) * forceOnBullet.x + Mathf.Cos (theta) * forceOnBullet.y);
+			rb.AddForce (rotated*bulletVelocity, ForceMode2D.Impulse);
+			NetworkServer.Spawn (newBullet);
+			Destroy (newBullet, bulletLifetime);
+		}
 	}
 }

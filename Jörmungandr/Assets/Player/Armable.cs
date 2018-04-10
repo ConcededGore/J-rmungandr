@@ -3,15 +3,15 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
 
-public class BulletSpawner : NetworkBehaviour {
+public class Armable : NetworkBehaviour {
 
 	public WeaponBase weapon;
 
 	// Use this for initialization
 	void Start () {
-		
+
 	}
-	
+
 	// Update is called once per frame
 	void Update () {
 
@@ -28,7 +28,7 @@ public class BulletSpawner : NetworkBehaviour {
 		}
 
 		if (Input.GetMouseButtonDown (0)) {
-				CmdFire ();
+			CmdFire ();
 		} else {
 			weapon.lastFired = weapon.lastFired + weapon.firerate*1.05f < Time.time ? Time.time - weapon.firerate*1.05f : weapon.lastFired;
 		}
