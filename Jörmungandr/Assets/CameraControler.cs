@@ -2,18 +2,15 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Rifle : WeaponBase {
+public class CameraControler : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-		ammoCount = 10;
-		currAmmo = ammoCount;
-		bulletVelocity = 40;
+		
 	}
 	
 	// Update is called once per frame
 	void Update () {
 		
 	}
-		
 }

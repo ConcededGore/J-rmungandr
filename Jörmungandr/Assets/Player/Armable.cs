@@ -5,40 +5,53 @@ using UnityEngine.Networking;
 
 public class Armable : NetworkBehaviour {
 
+	public bool timerFlag = false;
+
+	private float timer = 0;
+
+	private int idNum = 0;
+
 	public WeaponBase weapon;
-
-	// Use this for initialization
-	void Start () {
-
-	}
 
 	// Update is called once per frame
 	void Update () {
+		timer += Time.deltaTime;
 
 		if (!isLocalPlayer) {
 			return;
 		}
 		// runs on client	
 		if (weapon.autoFire) {
-			if (Input.GetMouseButton (0)) {
-				CmdFireAuto ();
+			if (Input.GetMouseButton (0) && (weapon.currAmmo > 0 || weapon.infiniteAmmo)) {
+				while (timer >= weapon.firerate) {
+					CmdFireAuto (GetComponent<NetworkIdentity>().netId);
+					timer -= weapon.firerate;
+				}
 			} else {
-				weapon.lastFired = weapon.lastFired + weapon.firerate < Time.time ? Time.time - weapon.firerate : weapon.lastFired;
+				if (timer >= weapon.firerate) {
+					timer = weapon.firerate;
+				}
+			}
+		} else {
+
+			if (Input.GetMouseButtonDown (0)) {
+				CmdFire ();
+			} else {
+				//weapon.lastFired = Time.time;
+				//weapon.lastFired = weapon.lastFired + weapon.firerate < Time.time ? Time.time - weapon.firerate : weapon.lastFired;
 			}
 		}
 
-		if (Input.GetMouseButtonDown (0)) {
-			CmdFire ();
-		} else {
-			weapon.lastFired = weapon.lastFired + weapon.firerate*1.05f < Time.time ? Time.time - weapon.firerate*1.05f : weapon.lastFired;
+		if (Input.GetKeyDown(KeyCode.R) && !Input.GetMouseButton(0)) {
+			weapon.Reload();
 		}
 
 	}
 
 	// Commands run on server
 	[Command]
-	void CmdFireAuto() {
-		weapon.AutoFire ();
+	void CmdFireAuto(NetworkInstanceId netId) {
+		weapon.AutoFire (netId);
 	}
 
 	[Command]

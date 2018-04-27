@@ -4,8 +4,6 @@ using UnityEngine;
 using UnityEngine.Networking;
 
 public class PlayerController : NetworkBehaviour {
-	public BulletSpawner bulletSpawner;
-
 	public string className;
 
 	public float speed;
@@ -32,6 +30,7 @@ public class PlayerController : NetworkBehaviour {
 	private bool anchored;
 	private bool lowFriction;
 
+
 	[SyncVar]
 	private bool isDead = false;
 
@@ -44,6 +43,7 @@ public class PlayerController : NetworkBehaviour {
 		jumpForce = 25f;
 		speed = 2.5f;
 		jumps = 3;
+
 	}
 
 	void Update () {
@@ -51,9 +51,16 @@ public class PlayerController : NetworkBehaviour {
 		if (!isLocalPlayer) {
 			return;
 		}
-
-
-
+		Camera mainCamera = Camera.main;
+		Vector3 newPositionOfCamera = mainCamera.ScreenToWorldPoint (Input.mousePosition) - transform.position;
+		newPositionOfCamera.Scale (new Vector3(1.5f,1f, 1));
+		if (newPositionOfCamera.magnitude > 15) {
+			newPositionOfCamera.Scale (15 * new Vector3 (1/newPositionOfCamera.magnitude, 1/newPositionOfCamera.magnitude, 1/newPositionOfCamera.magnitude));
+		}
+		mainCamera.orthographicSize = newPositionOfCamera.magnitude;
+		newPositionOfCamera += transform.position;
+		newPositionOfCamera.z = mainCamera.transform.position.z;
+		mainCamera.transform.position = newPositionOfCamera;
 		transform.rotation = Quaternion.Euler (Vector3.zero);
 		jumpDirection.y += jumpDirection.magnitude;
 		jumpDirection.Normalize ();
@@ -87,7 +94,7 @@ public class PlayerController : NetworkBehaviour {
 				}
 			}
 		} else {
-			rb.AddForce (new Vector2 ((speed)*horizontal/5, 0), ForceMode2D.Impulse);
+			rb.AddForce (new Vector2 ((speed)*horizontal/(Mathf.Abs(rb.velocity.x) < 5 ? 5 : Mathf.Abs(rb.velocity.x)), 0), ForceMode2D.Impulse);
 		}
 		if (anchored) { //decide if player should slip down wall at all
 			rb.velocity = new Vector2 (rb.velocity.x, rb.velocity.y * (-(vertical - 1)/2.0f));

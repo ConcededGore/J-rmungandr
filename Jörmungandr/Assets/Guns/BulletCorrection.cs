@@ -5,7 +5,7 @@ using UnityEngine.Networking;
 
 public class BulletCorrection : NetworkBehaviour {
 
-	private float timer = 1;
+	private float timer = 2;
 
 	ParticleSystem _particleSystem;
 	private Rigidbody2D rb;
@@ -14,9 +14,13 @@ public class BulletCorrection : NetworkBehaviour {
 	void Start () {
 		rb = GetComponent<Rigidbody2D> ();
 		_particleSystem = GetComponentInChildren<ParticleSystem> ();
-		CmdParticles ();
+		if (isLocalPlayer) {
+			CmdParticles ();
+		} else {
+			RpcParticles ();
+		}
 	}
-	
+
 	// Update is called once per frame
 	void Update () {
 
@@ -34,15 +38,11 @@ public class BulletCorrection : NetworkBehaviour {
 				CmdParticles ();
 			}
 			timer = 0;
-		} else {
-			print ("Particles done broke again");
 		}
 	}
 
 	[Command]
 	void CmdParticles() {
-		if (!isServer)
-			return;
 		RpcParticles ();
 	}
 

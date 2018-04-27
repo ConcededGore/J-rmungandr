@@ -42,8 +42,8 @@ GameObject:
   - component: {fileID: 50306388236980390}
   - component: {fileID: 114922937128387846}
   - component: {fileID: 114242544912707046}
-  - component: {fileID: 108558307848885440}
   - component: {fileID: 114876149699466212}
+  - component: {fileID: 114462352424992108}
   m_Layer: 10
   m_Name: Bullet
   m_TagString: Bullet
@@ -59,7 +59,7 @@ Transform:
   m_GameObject: {fileID: 1430988435412250}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: -3.9531007, y: -1.6451054, z: 0}
-  m_LocalScale: {x: 0.1, y: 0.0125, z: 0.1}
+  m_LocalScale: {x: 0.1, y: 0.1, z: 0.1}
   m_Children:
   - {fileID: 4837990122631380}
   m_Father: {fileID: 0}
@@ -118,7 +118,7 @@ MeshFilter:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1430988435412250}
-  m_Mesh: {fileID: 10206, guid: 0000000000000000e000000000000000, type: 0}
+  m_Mesh: {fileID: 4300000, guid: 0430cbda4ff383247a7f92b92aab7f9b, type: 3}
 --- !u!50 &50306388236980390
 Rigidbody2D:
   serializedVersion: 4
@@ -154,42 +154,6 @@ CapsuleCollider2D:
   m_Offset: {x: 0, y: 0}
   m_Size: {x: 1, y: 2}
   m_Direction: 1
---- !u!108 &108558307848885440
-Light:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1430988435412250}
-  m_Enabled: 1
-  serializedVersion: 8
-  m_Type: 2
-  m_Color: {r: 0.99310344, g: 1, b: 0.875, a: 1}
-  m_Intensity: 1
-  m_Range: 10
-  m_SpotAngle: 30
-  m_CookieSize: 10
-  m_Shadows:
-    m_Type: 0
-    m_Resolution: -1
-    m_CustomResolution: -1
-    m_Strength: 1
-    m_Bias: 0.05
-    m_NormalBias: 0.4
-    m_NearPlane: 0.2
-  m_Cookie: {fileID: 0}
-  m_DrawHalo: 0
-  m_Flare: {fileID: 0}
-  m_RenderMode: 0
-  m_CullingMask:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_Lightmapping: 4
-  m_AreaSize: {x: 1, y: 1}
-  m_BounceIntensity: 1
-  m_ColorTemperature: 6570
-  m_UseColorTemperature: 0
-  m_ShadowRadius: 0
-  m_ShadowAngle: 0
 --- !u!114 &114242544912707046
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -199,6 +163,17 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f8534ccd63a842b4aa8d98f5eeb25c70, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &114462352424992108
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1430988435412250}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 472b1f97938263a4787c312b2f02ea84, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!114 &114876149699466212
@@ -874,7 +849,7 @@ ParticleSystem:
     rateOverTime:
       serializedVersion: 2
       minMaxState: 0
-      scalar: 1
+      scalar: 0
       minScalar: 10
       maxCurve:
         serializedVersion: 2
@@ -915,7 +890,7 @@ ParticleSystem:
     rateOverDistance:
       serializedVersion: 2
       minMaxState: 0
-      scalar: 0
+      scalar: 10
       minScalar: 0
       maxCurve:
         serializedVersion: 2
@@ -2930,7 +2905,7 @@ ParticleSystem:
     lifetime:
       serializedVersion: 2
       minMaxState: 0
-      scalar: 1
+      scalar: 0.05
       minScalar: 1
       maxCurve:
         serializedVersion: 2
