@@ -7,11 +7,12 @@ public abstract class WeaponBase : NetworkBehaviour {
 
 	public GameObject bullet;
 	public GameObject SpawnPos;
+	public LookAtMouse LookAtMouse;
 
 	public float firerate  = .25f; // Measured in seconds between firing
 	public float reloadTime = 1; // In seconds
 	public float bulletLifetime = 1; // ButtSecs
-	public float bulletVelocity = .5f; // Meters per second
+	public float bulletVelocity = 40f; // Meters per second
 	public float fireField = 10f; //Measured in degrees
 	//public float recoil; Not sure if we'll use this
 
@@ -21,7 +22,8 @@ public abstract class WeaponBase : NetworkBehaviour {
 
 	public bool autoFire = true; // True for fullauto, false for semi
 	public bool infiniteAmmo = false;
-	public bool fireFlag = false;
+
+	private bool fireFlag = false;
 
 	public float lastFired;
 
@@ -45,7 +47,7 @@ public abstract class WeaponBase : NetworkBehaviour {
 		Destroy (newBullet, bulletLifetime);
 	}
 
-	public virtual void SingleFire() {
+	public virtual void SingleFire(NetworkInstanceId netId) {
 		if (lastFired + firerate < Time.time && (currAmmo > 0 || infiniteAmmo)) {
 			lastFired = Time.time;
 			GameObject newBullet = Instantiate<GameObject> (bullet, SpawnPos.transform.position, SpawnPos.transform.rotation);
@@ -55,6 +57,7 @@ public abstract class WeaponBase : NetworkBehaviour {
 			float theta = Random.Range (-fireField / 2, fireField / 2) * Mathf.Deg2Rad;
 			Vector2 rotated = new Vector2 (Mathf.Cos (theta) * forceOnBullet.x - Mathf.Sin (theta) * forceOnBullet.y, Mathf.Sin (theta) * forceOnBullet.x + Mathf.Cos (theta) * forceOnBullet.y);
 			rb.AddForce (rotated * bulletVelocity, ForceMode2D.Impulse);
+			newBullet.GetComponent<CollisionCorrection>().spawnedBy = netId;
 			NetworkServer.Spawn (newBullet);
 			Destroy (newBullet, bulletLifetime);
 			currAmmo--;
@@ -65,6 +68,10 @@ public abstract class WeaponBase : NetworkBehaviour {
 	}
 
 	public virtual void Altfire() {
+		print ("REEEEEEEE");
+	}
+
+	public virtual void AbilityOne() {
 
 	}
 

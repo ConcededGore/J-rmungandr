@@ -21,6 +21,9 @@ public class PlayerController : NetworkBehaviour {
 	private float horizontal;
 	private float vertical;
 
+	private float jumpTime = 0;
+	private float lastJumpCalc = 0;
+
 	private Rigidbody2D rb;
 	private BoxCollider2D bc;
 	private Vector2 jumpDirection;
@@ -29,7 +32,8 @@ public class PlayerController : NetworkBehaviour {
 	private bool grounded;
 	private bool anchored;
 	private bool lowFriction;
-
+	private bool named = false;
+	private bool updated = false;
 
 	[SyncVar]
 	private bool isDead = false;
@@ -40,8 +44,8 @@ public class PlayerController : NetworkBehaviour {
 		rb = GetComponent<Rigidbody2D> ();
 		bc = GetComponent<BoxCollider2D> ();
 		maxHorizontal = (Vector2.right * 750 * Time.deltaTime);
-		jumpForce = 25f;
-		speed = 2.5f;
+		jumpForce = 22.5f;
+		speed = 5f;
 		jumps = 3;
 
 	}
@@ -51,19 +55,17 @@ public class PlayerController : NetworkBehaviour {
 		if (!isLocalPlayer) {
 			return;
 		}
-		Camera mainCamera = Camera.main;
-		Vector3 newPositionOfCamera = mainCamera.ScreenToWorldPoint (Input.mousePosition) - transform.position;
-		newPositionOfCamera.Scale (new Vector3(1.5f,1f, 1));
-		if (newPositionOfCamera.magnitude > 15) {
-			newPositionOfCamera.Scale (15 * new Vector3 (1/newPositionOfCamera.magnitude, 1/newPositionOfCamera.magnitude, 1/newPositionOfCamera.magnitude));
+
+		if (isDead) {
+			if (!updated) {
+				CmdUpdateConstraints();
+				updated = true;
+			}
+			return;
 		}
-		mainCamera.orthographicSize = newPositionOfCamera.magnitude;
-		newPositionOfCamera += transform.position;
-		newPositionOfCamera.z = mainCamera.transform.position.z;
-		mainCamera.transform.position = newPositionOfCamera;
+
 		transform.rotation = Quaternion.Euler (Vector3.zero);
-		jumpDirection.y += jumpDirection.magnitude;
-		jumpDirection.Normalize ();
+
 		justJumped = false;
 		// Using GetAxisRaw here, may prefer to use GetAxis later; talk to Jackson
 		horizontal = Input.GetAxisRaw ("Horizontal");
@@ -76,19 +78,26 @@ public class PlayerController : NetworkBehaviour {
 				if (lowFriction) {
 					rb.velocity = new Vector2 (rb.velocity.x * .95f, rb.velocity.y);
 				} else {
-					rb.velocity = new Vector2 (rb.velocity.x * .8f, rb.velocity.y);
+					rb.velocity = new Vector2 (rb.velocity.x * .6f, rb.velocity.y);
 				}
 			} else {
+				if (Mathf.Abs (rb.velocity.x + horizontal) < Mathf.Abs (rb.velocity.x) && grounded) {
+					rb.velocity = new Vector2 (0, rb.velocity.y);
+				}
 				if (rb.velocity.magnitude < 1 && !lowFriction) { //replace 1 with something speed related
 					rb.velocity = new Vector2 (horizontal * (speed), rb.velocity.y); //5 to be replaced by playerspeed*.5
 				} else {
 					if (lowFriction) {
-						if (rb.velocity.magnitude < (speed*4)) { //replace 20 with something speed related
-							rb.AddForce (new Vector2 (horizontal * (((speed*4) - rb.velocity.magnitude) * rb.mass * .25f), 0), ForceMode2D.Impulse); //replace 20 with something speed related and maybe .35
+						if (rb.velocity.magnitude < (speed * 4)) { //replace 20 with something speed related
+							rb.AddForce (new Vector2 (horizontal * (((speed * 4) - rb.velocity.magnitude) * rb.mass * .25f), 0), ForceMode2D.Impulse); //replace 20 with something speed related and maybe .35
+						} else {
+							rb.velocity = new Vector2 (rb.velocity.x * .975f, rb.velocity.y);
 						}
 					} else {
-						if (rb.velocity.magnitude < (speed*3)) { //replace 15 with something speed related
-							rb.AddForce (new Vector2 (horizontal * (((speed*3) - rb.velocity.magnitude) * rb.mass * .5f), 0), ForceMode2D.Impulse); //replace 15 with something speed related and maybe .5
+						if (rb.velocity.magnitude < (speed * 3)) { //replace 15 with something speed related
+							rb.AddForce (new Vector2 (horizontal * (((speed * 3) - rb.velocity.magnitude) * rb.mass * .5f), 0), ForceMode2D.Impulse); //replace 15 with something speed related and maybe .5
+						} else {
+							rb.velocity = new Vector2 (rb.velocity.x * .9f, rb.velocity.y);
 						}
 					}
 				}
@@ -105,25 +114,36 @@ public class PlayerController : NetworkBehaviour {
 		// Could also use the up arrow, might use space later for another function; might want to just make a new axis for this
 		if (jumpDirection.magnitude == 0f) {
 			jumpDirection = rb.velocity;
-			jumpDirection.y += jumpDirection.magnitude;
-			jumpDirection.Normalize ();
 		}
 		if (Input.GetKeyDown("space") && ((curentJumps < jumps) || anchored)) {
+			if (curentJumps == 0) {
+				print ("new jump chain");
+			}
+			jumpDirection.y += jumpDirection.magnitude;
+			jumpDirection.Normalize ();
 			justJumped = true;
 			rb.AddForce (jumpDirection * jumpForce, ForceMode2D.Impulse);
 			curentJumps++;
+			jumpTime = Time.time;
+			lastJumpCalc = Time.time;
+			print (curentJumps);
+		}
+		if (Input.GetKey ("space") && lastJumpCalc - jumpTime < .5f) {
+			rb.AddForce (jumpDirection * jumpForce * (Time.time - jumpTime < .5f ? Time.time - lastJumpCalc : .5f - (lastJumpCalc - jumpTime)), ForceMode2D.Impulse);
+			lastJumpCalc = Time.time;
 		}
 	}
 
 	void OnCollisionEnter2D(Collision2D col) {
 		if (col.gameObject.tag == "Bullet" && eatBullets) {
 			Destroy (col.gameObject);
+			isDead = true;
 		}
 	}
 
 	void OnCollisionStay2D(Collision2D coloid) {
 		//add some kind of "jumpable" tag
-		if (!justJumped) {
+		if (!justJumped && jumpTime - Time.time < -.5f) {
 			Vector2 jumpDir = new Vector2 (0, 0);
 			foreach (ContactPoint2D cont in coloid.contacts) {
 				if (cont.normal.y > .5f) {
@@ -152,6 +172,17 @@ public class PlayerController : NetworkBehaviour {
 	void OnCollisionExit2D(){
 		anchored = false;
 		grounded = false;
+	}
+
+	public bool IsDead {
+		get {
+			return isDead;
+		}
+	}
+
+	[Command]
+	void CmdUpdateConstraints() {
+		rb.constraints = RigidbodyConstraints2D.None;
 	}
 }
 

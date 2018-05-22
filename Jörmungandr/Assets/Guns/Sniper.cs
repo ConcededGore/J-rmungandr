@@ -3,9 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
 
-public class PlayerList : NetworkBehaviour {
-
-
+public class Sniper : WeaponBase {
 
 	// Use this for initialization
 	void Start () {
@@ -14,10 +12,10 @@ public class PlayerList : NetworkBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-		for (int i = 0; i < Network.connections.Length; i++) {
-			print (Network.connections [i].ipAddress + " " + Network.connections.Length);
-		}
+		
 	}
 
-
+	public override void AutoFire(NetworkInstanceId netId) {
+		print ("RATATATAT");
+	}
 }

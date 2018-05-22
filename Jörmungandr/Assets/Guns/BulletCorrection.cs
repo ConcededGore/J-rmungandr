@@ -14,10 +14,10 @@ public class BulletCorrection : NetworkBehaviour {
 	void Start () {
 		rb = GetComponent<Rigidbody2D> ();
 		_particleSystem = GetComponentInChildren<ParticleSystem> ();
-		if (isLocalPlayer) {
-			CmdParticles ();
-		} else {
+		if (isServer) {
 			RpcParticles ();
+		} else if (isLocalPlayer) {
+			CmdParticles ();
 		}
 	}
 
@@ -48,7 +48,9 @@ public class BulletCorrection : NetworkBehaviour {
 
 	[ClientRpc]
 	void RpcParticles() {
-		_particleSystem.Emit (1);
+		if (_particleSystem != null) {
+			_particleSystem.Emit (1);
+		}
 	}
 
 }

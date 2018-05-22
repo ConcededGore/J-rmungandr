@@ -9,15 +9,13 @@ public class Armable : NetworkBehaviour {
 
 	private float timer = 0;
 
-	private int idNum = 0;
-
 	public WeaponBase weapon;
 
 	// Update is called once per frame
 	void Update () {
 		timer += Time.deltaTime;
 
-		if (!isLocalPlayer) {
+		if (!isLocalPlayer || transform.gameObject.GetComponent<PlayerController> ().IsDead) {
 			return;
 		}
 		// runs on client	
@@ -35,10 +33,14 @@ public class Armable : NetworkBehaviour {
 		} else {
 
 			if (Input.GetMouseButtonDown (0)) {
-				CmdFire ();
+				if (timer >= weapon.firerate) {
+					CmdFire (GetComponent<NetworkIdentity>().netId);
+					timer = 0;
+				}
 			} else {
-				//weapon.lastFired = Time.time;
-				//weapon.lastFired = weapon.lastFired + weapon.firerate < Time.time ? Time.time - weapon.firerate : weapon.lastFired;
+				if (timer >= weapon.firerate) {
+					timer = weapon.firerate;
+				}
 			}
 		}
 
@@ -46,6 +48,15 @@ public class Armable : NetworkBehaviour {
 			weapon.Reload();
 		}
 
+		if (Input.GetMouseButtonDown (1)) {
+			CmdAltFire ();
+		}
+
+	}
+
+	[Command]
+	void CmdAltFire() {
+		weapon.Altfire ();
 	}
 
 	// Commands run on server
@@ -55,7 +66,7 @@ public class Armable : NetworkBehaviour {
 	}
 
 	[Command]
-	void CmdFire() {
-		weapon.SingleFire ();
+	void CmdFire(NetworkInstanceId netId) {
+		weapon.SingleFire (netId);
 	}
 }
